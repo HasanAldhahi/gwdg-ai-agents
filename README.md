@@ -24,7 +24,7 @@ Ready-to-use configurations for running open-source AI coding agents with [GWDG 
 The main script lets you choose which tool to install and configures everything:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/gwdg-ai-agents.git
+git clone https://github.com/HasanAldhahi/gwdg-ai-agents.git
 cd gwdg-ai-agents
 bash configs/gwdg-ai-env.sh
 ```
