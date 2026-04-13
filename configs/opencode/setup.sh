@@ -24,8 +24,9 @@ CONFIG_DIR="${HOME}/.config/opencode"
 mkdir -p "$CONFIG_DIR"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cp "$SCRIPT_DIR/config.toml" "$CONFIG_DIR/config.toml"
+cp "$SCRIPT_DIR/opencode.json" "$CONFIG_DIR/opencode.json"
 
 echo ""
-echo "Done! Config written to ${CONFIG_DIR}/config.toml"
+echo "Done! Config written to ${CONFIG_DIR}/opencode.json"
+echo "Set your API key: export OPENAI_API_KEY='your-saia-key'"
 echo "Run 'opencode' to start."

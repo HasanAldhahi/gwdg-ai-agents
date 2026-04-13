@@ -34,20 +34,36 @@ GWDG provides LLM access through the **CoCo AI** service, built on the **SAIA** 
 | **Auth** | SAIA API Key (request via [KISSKI LLM Service](https://docs.hpc.gwdg.de/services/ai-services/saia/index.html)) |
 | **Endpoints** | `/chat/completions`, `/completions`, `/embeddings`, `/models` |
 
-### Available Models (as of April 2026)
+### Available Models (verified April 13, 2026)
 
 | Model | Type | Recommended For |
 |---|---|---|
 | `qwen3-coder-30b-a3b-instruct` | Code | Agentic coding, autocomplete |
-| `codestral-22b` | Code | Code completion, editing |
-| `qwen2.5-coder-32b-instruct` | Code | Code generation |
-| `qwen3-235b-a22b` | General | Complex reasoning |
+| `devstral-2-123b-instruct-2512` | Code | Code generation (Mistral) |
+| `qwen3.5-397b-a17b` | General | Complex reasoning (largest) |
+| `qwen3.5-122b-a10b` | General | Multimodal reasoning |
+| `qwen3.5-35b-a3b` | General | Multimodal, balanced |
+| `qwen3.5-27b` | General | Multimodal, efficient |
+| `qwen3-235b-a22b` | General | Reasoning |
+| `qwen3-32b` | Reasoning | Chain-of-thought tasks |
 | `qwen3-30b-a3b-thinking-2507` | Reasoning | Chain-of-thought tasks |
-| `deepseek-r1` | Reasoning | Deep analysis |
+| `qwen3-30b-a3b-instruct-2507` | General | Instruction following |
+| `mistral-large-3-675b-instruct-2512` | General | Multilingual, multimodal |
 | `llama-3.3-70b-instruct` | General | Chat, planning |
 | `meta-llama-3.1-8b-instruct` | General | Lightweight tasks |
-| `mistral-large-instruct` | General | Multilingual tasks |
-| `qwq-32b` | Reasoning | Math, logic |
+| `apertus-70b-instruct-2509` | General | Instruction following |
+| `glm-4.7` | General | General purpose |
+| `gemma-3-27b-it` | General | Multimodal |
+| `deepseek-r1-distill-llama-70b` | Reasoning | Deep analysis |
+| `openai-gpt-oss-120b` | General | GPT-class open source |
+| `internvl3.5-30b-a3b` | Vision | Image/video understanding |
+| `qwen3-vl-30b-a3b-instruct` | Vision | Visual coding |
+| `qwen3-omni-30b-a3b-instruct` | Multimodal | Text + image + audio |
+| `medgemma-27b-it` | Medical | Biomedical tasks |
+| `teuken-7b-instruct-research` | Research | German/multilingual |
+| `llama-3.1-sauerkrautlm-70b-instruct` | General | German-focused |
+
+> **Removed models** (no longer on the API): `codestral-22b`, `qwen2.5-coder-32b-instruct`, `deepseek-r1`, `qwq-32b`, `mistral-large-instruct`, `qwen2.5-vl-72b-instruct`, `qwen2.5-omni-7b`
 
 Full list: <https://docs.hpc.gwdg.de/services/ai-services/chat-ai/models/index.html>
 
@@ -116,22 +132,26 @@ go install github.com/opencode-ai/opencode@latest
 
 ### GWDG Configuration
 
-Create or edit `~/.config/opencode/config.toml`:
+OpenCode uses JSON config files (not TOML). Create or edit `~/.config/opencode/opencode.json`:
 
-```toml
-[providers.gwdg]
-api_key_env = "SAIA_API_KEY"
-base_url = "https://chat-ai.academiccloud.de/v1"
-
-[models.default]
-provider = "gwdg"
-model = "qwen3-coder-30b-a3b-instruct"
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": "https://chat-ai.academiccloud.de/v1"
+      }
+    }
+  },
+  "model": "openai/qwen3-coder-30b-a3b-instruct"
+}
 ```
 
 Set the API key in your shell profile (`~/.bashrc` or `~/.zshrc`):
 
 ```bash
-export SAIA_API_KEY="your-saia-api-key-here"
+export OPENAI_API_KEY="your-saia-api-key-here"
 ```
 
 Alternative — environment variables only (no config file):
@@ -175,11 +195,13 @@ ZeroClaw is a Rust-based AI agent framework. Single binary (~3.4MB), <10ms cold 
 
 ### Installation
 
+> **Status (April 2026):** ZeroClaw is not yet available via Homebrew or as a public binary. Check <https://zeroclaws.io/> for release updates. The install commands below are from their docs but have not been verified to work yet.
+
 ```bash
-# macOS
+# macOS (not yet verified)
 brew install zeroclaw-labs/tap/zeroclaw
 
-# Linux / other
+# Linux / other (not yet verified)
 curl -fsSL https://zeroclaws.io/install.sh | bash
 
 # Requires Rust 1.75+ for building from source
@@ -303,15 +325,21 @@ Terok manages Podman containers for AI coding agent projects. It provides securi
 
 ### Installation
 
+> **Note:** Terok is not on PyPI. Install from the cloned repo or a GitHub release wheel.
+
 ```bash
 # Requires: Podman, Python 3.12+, OpenSSH client
 
-pip install terok
+# Install Podman first (macOS)
+brew install podman
+podman machine init && podman machine start
 
-# Or from source
+# Install Terok from source via pipx (recommended)
 git clone https://github.com/terok-ai/terok.git
-cd terok
-pip install -e .
+pipx install ./terok
+
+# Or from a GitHub release wheel
+# pipx install ./terok-*.whl
 ```
 
 ### GWDG Configuration
@@ -376,15 +404,17 @@ Spec-Kit is a toolkit for Spec-Driven Development. Instead of prompting an LLM d
 
 ### Installation
 
+> **Note:** The package name is `specify-cli` (not `spec-kit`). It is not on PyPI or npm — install from GitHub.
+
 ```bash
-# Persistent install
-uv tool install spec-kit
+# Persistent install (recommended — pin a release tag)
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
-# One-time usage
-uvx spec-kit --help
+# One-time usage (no install)
+uvx --from git+https://github.com/github/spec-kit.git specify --help
 
-# Node.js alternative
-npx @github/spec-kit --help
+# Upgrade
+uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
 ```
 
 ### GWDG Integration
@@ -394,16 +424,17 @@ Spec-Kit generates specs, then hands off to an agent for implementation. Configu
 Example workflow with OpenCode + GWDG:
 
 ```bash
-# Step 1: Generate a spec from a description
-specify create "A REST API for managing lab equipment inventory"
+# Step 1: Initialize a spec-driven project
+specify init my-lab-api --ai claude
 
-# Step 2: Review and refine the generated spec
-specify plan --stack python-fastapi
+# Step 2: Inside your AI agent, use the /speckit.specify command to describe what to build
+# /speckit.specify A REST API for managing lab equipment inventory
 
-# Step 3: Break into tasks
-specify tasks
+# Step 3: Use /speckit.plan to create an implementation plan
 
-# Step 4: Implement using OpenCode with GWDG models
+# Step 4: Use /speckit.tasks to break into implementable tasks
+
+# Step 5: Implement using OpenCode with GWDG models
 opencode run "Implement the tasks in .spec/tasks/"
 ```
 
