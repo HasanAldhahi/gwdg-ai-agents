@@ -226,7 +226,7 @@ setup_terok() {
     warn "Docker can work as an experimental alternative."
   fi
 
-  if ! command -v terok &> /dev/null && ! command -v terokctl &> /dev/null; then
+  if ! command -v terok &> /dev/null; then
     info "Installing Terok…"
     if command -v pipx &> /dev/null; then
       info "Downloading latest Terok wheel from GitHub Releases…"
@@ -255,9 +255,9 @@ setup_terok() {
   echo ""
   ok "Quick start:"
   echo "  terok                           # Start TUI"
-  echo "  terokctl start --preset solo    # Single agent"
-  echo "  terokctl start --preset review  # Agent + code review"
-  echo "  terokctl start --preset team    # Multi-agent team"
+  echo "  terok run chat-ai-demo 'Quick repo review' --preset solo"
+  echo "  terok run chat-ai-demo 'Review auth module' --preset review"
+  echo "  terok run chat-ai-demo 'Add pagination' --preset team"
 }
 
 setup_claude_code() {

@@ -1,6 +1,6 @@
 # Agent Coding Platforms — GWDG Comprehensive Guide
 
-> **Author:** Hasan Aldahain  
+> **Author:** Hasan Aldahai 
 > **Date:** April 2026  
 > **Goal:** Document how to use GWDG-hosted LLMs with external coding agent platforms, provide setup guides, config files, and a comparison matrix.
 
@@ -73,7 +73,7 @@ curl https://chat-ai.academiccloud.de/v1/chat/completions \
 | **Type** | CLI/TUI coding agent | Rust AI agent framework | Multi-agent AI framework | Container manager for agents | Spec-driven dev toolkit | Agentic coding harness |
 | **License** | Open Source | Open Source | Open Source (MIT) | Apache 2.0 | Open Source | Proprietary (hackable) |
 | **Language** | Go | Rust | Python | Python | Python / Node.js | TypeScript |
-| **Interface** | Terminal TUI | CLI / Telegram / Discord / Slack | Web UI + Docker | CLI (`terokctl`) + TUI (`terok`) | CLI (`specify`) | Terminal |
+| **Interface** | Terminal TUI | CLI / Telegram / Discord / Slack | Web UI + Docker | CLI + TUI (`terok`) | CLI (`specify`) | Terminal |
 | **OpenAI-compatible API** | Yes (75+ providers) | Yes (22+ providers) | Yes (OpenAI, Anthropic, Ollama, etc.) | Depends on agent inside container | Yes (any LLM provider) | Yes (Anthropic API format) |
 | **GWDG CoCo AI compatible** | Yes | Yes | Yes | Yes | Yes | Yes (via proxy/llama.cpp) |
 | **Multi-agent** | Dual (Plan + Build) | Single agent w/ rollback | Yes (hierarchical sub-agents) | Yes (solo/review/team presets) | No (workflow tool) | Single agent |
@@ -339,16 +339,16 @@ export SAIA_API_KEY="your-saia-api-key-here"
 # Start TUI
 terok
 
-# CLI interface
-terokctl start --preset solo
+# CLI interface (new Terok CLI)
+terok run chat-ai-demo "Analyze this repo and suggest quick wins" --preset solo
 
 # Available presets
-terokctl start --preset solo    # Single agent
-terokctl start --preset review  # Agent with code review
-terokctl start --preset team    # Multi-agent team
+terok run chat-ai-demo "Fix a small bug" --preset solo
+terok run chat-ai-demo "Review auth module risks" --preset review
+terok run chat-ai-demo "Add pagination endpoint" --preset team
 
 # Headless / autopilot mode
-terokctl run --prompt "Refactor the auth module" --headless
+terok run chat-ai-demo "Refactor the auth module" --no-follow
 ```
 
 ### Security Modes
@@ -544,7 +544,7 @@ docker run -d --name agent-zero --restart unless-stopped -p 50001:80 \
   agent0ai/agent-zero:latest
 
 # Terok solo agent
-SAIA_API_KEY=$SAIA_API_KEY terokctl start --preset solo
+SAIA_API_KEY=$SAIA_API_KEY terok run chat-ai-demo "Run a quick code quality pass" --preset solo
 ```
 
 ---

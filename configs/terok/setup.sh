@@ -17,7 +17,7 @@ if ! command -v podman &> /dev/null; then
   echo "Docker can be used as an experimental alternative."
 fi
 
-if ! command -v terok &> /dev/null && ! command -v terokctl &> /dev/null; then
+if ! command -v terok &> /dev/null; then
   echo "Installing Terok..."
   if command -v pipx &> /dev/null; then
     echo "Downloading latest Terok wheel from GitHub Releases..."
@@ -46,9 +46,9 @@ fi
 echo ""
 echo "Done! Quick start commands:"
 echo "  terok                           # Start TUI"
-echo "  terokctl start --preset solo    # Single agent"
-echo "  terokctl start --preset review  # Agent + code review"
-echo "  terokctl start --preset team    # Multi-agent team"
+echo "  terok run chat-ai-demo 'Quick repo review' --preset solo"
+echo "  terok run chat-ai-demo 'Review auth module' --preset review"
+echo "  terok run chat-ai-demo 'Add pagination' --preset team"
 echo ""
 echo "Headless mode:"
-echo "  terokctl run --prompt 'Refactor the auth module' --headless"
+echo "  terok run chat-ai-demo 'Refactor the auth module' --no-follow"
