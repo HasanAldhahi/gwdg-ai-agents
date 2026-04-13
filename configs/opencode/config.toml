@@ -1,0 +1,17 @@
+# OpenCode configuration for GWDG CoCo AI
+# Place at: ~/.config/opencode/config.toml
+#
+# Set env var first: export SAIA_API_KEY="your-key-here"
+
+[providers.gwdg]
+api_key_env = "SAIA_API_KEY"
+base_url = "https://chat-ai.academiccloud.de/v1"
+
+[models.default]
+provider = "gwdg"
+model = "qwen3-coder-30b-a3b-instruct"
+
+# Alternative: use a reasoning model for the Plan agent
+# [models.plan]
+# provider = "gwdg"
+# model = "qwen3-30b-a3b-thinking-2507"

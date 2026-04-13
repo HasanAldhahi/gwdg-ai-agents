@@ -1,0 +1,22 @@
+# Exclude everything, then allow only what we want
+*
+
+# Allow repo structure
+!.gitignore
+!README.md
+!LICENSE
+!agent-coding-platforms-gwdg.md
+
+# Allow configs directory
+!configs/
+!configs/**
+
+# Ignore venvs and caches inside configs
+configs/**/.venv/
+configs/**/__pycache__/
+configs/**/*.pyc
+
+# OS files
+.DS_Store
+**/.DS_Store
+Thumbs.db
