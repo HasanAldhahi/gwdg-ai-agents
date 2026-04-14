@@ -1,8 +1,8 @@
 # ZeroClaw configuration for GWDG CoCo AI
 # Place at: ~/.zeroclaw/config.toml
 #
-# Set env var first: export SAIA_API_KEY="your-key-here"
-# Or set api_key below directly.
+# ZeroClaw custom: providers use API_KEY or ZEROCLAW_API_KEY (not OPENAI_API_KEY).
+# Set: export API_KEY="your-saia-key-here"
 
 default_provider = "custom:https://chat-ai.academiccloud.de/v1"
 default_model = "glm-4.7"

@@ -169,24 +169,33 @@ setup_zeroclaw() {
 
   if [ -f "$CONFIG_DIR/config.toml" ]; then
     info "Patching existing config at $CONFIG_DIR/config.toml…"
-    TMPFILE="$(mktemp)"
-    sed \
-      -e "s|^default_provider = .*|default_provider = \"custom:https://chat-ai.academiccloud.de/v1\"|" \
-      -e "s|^default_model = .*|default_model = \"glm-4.7\"|" \
-      -e "/^api_key = /d" \
-      "$CONFIG_DIR/config.toml" > "$TMPFILE"
-    sed -e "/^default_provider = /a\\
-api_key = \"${SAIA_API_KEY}\"" "$TMPFILE" > "$CONFIG_DIR/config.toml"
-    rm -f "$TMPFILE"
+    # Only patch the first two lines (top-level provider/model), not section-scoped ones
+    python3 -c "
+import sys
+lines = open(sys.argv[1]).readlines()
+patched = False
+out = []
+for line in lines:
+    if not patched and line.startswith('default_provider = '):
+        out.append('default_provider = \"custom:https://chat-ai.academiccloud.de/v1\"\n')
+        patched = True
+    elif not patched and line.startswith('default_model = '):
+        out.append('default_model = \"glm-4.7\"\n')
+    else:
+        out.append(line)
+open(sys.argv[1], 'w').writelines(out)
+" "$CONFIG_DIR/config.toml"
   elif [ -f "$SCRIPT_DIR/zeroclaw/config.toml" ]; then
     cp "$SCRIPT_DIR/zeroclaw/config.toml" "$CONFIG_DIR/config.toml"
-    sed -i '' "/^default_provider = /a\\
-api_key = \"${SAIA_API_KEY}\"" "$CONFIG_DIR/config.toml"
   fi
 
+  # ZeroClaw custom: providers read API_KEY env var, not OPENAI_API_KEY
+  export API_KEY="$SAIA_API_KEY"
+
   ok "Config: $CONFIG_DIR/config.toml"
+  info "ZeroClaw custom: providers use API_KEY env var (already set from your SAIA key)."
   echo ""
-  ok "Run 'zeroclaw agent' to start."
+  ok "Run 'API_KEY=\$SAIA_API_KEY zeroclaw agent' to start."
 }
 
 setup_agent_zero() {
