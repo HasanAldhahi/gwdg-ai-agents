@@ -141,9 +141,9 @@ setup_opencode() {
 
   CONFIG_DIR="${HOME}/.config/opencode"
   mkdir -p "$CONFIG_DIR"
-  if [ -f "$SCRIPT_DIR/opencode/opencode.json" ]; then
-    cp "$SCRIPT_DIR/opencode/opencode.json" "$CONFIG_DIR/opencode.json"
-    ok "Config written to $CONFIG_DIR/opencode.json"
+  if [ -f "$SCRIPT_DIR/opencode/config.toml" ]; then
+    cp "$SCRIPT_DIR/opencode/config.toml" "$CONFIG_DIR/config.toml"
+    ok "Config written to $CONFIG_DIR/config.toml"
   fi
 
   echo ""
@@ -164,13 +164,27 @@ setup_zeroclaw() {
     ok "ZeroClaw already installed."
   fi
 
-  CONFIG_DIR="${HOME}/.config/zeroclaw"
+  CONFIG_DIR="${HOME}/.zeroclaw"
   mkdir -p "$CONFIG_DIR"
-  if [ -f "$SCRIPT_DIR/zeroclaw/config.toml" ]; then
+
+  if [ -f "$CONFIG_DIR/config.toml" ]; then
+    info "Patching existing config at $CONFIG_DIR/config.toml…"
+    TMPFILE="$(mktemp)"
+    sed \
+      -e "s|^default_provider = .*|default_provider = \"custom:https://chat-ai.academiccloud.de/v1\"|" \
+      -e "s|^default_model = .*|default_model = \"glm-4.7\"|" \
+      -e "/^api_key = /d" \
+      "$CONFIG_DIR/config.toml" > "$TMPFILE"
+    sed -e "/^default_provider = /a\\
+api_key = \"${SAIA_API_KEY}\"" "$TMPFILE" > "$CONFIG_DIR/config.toml"
+    rm -f "$TMPFILE"
+  elif [ -f "$SCRIPT_DIR/zeroclaw/config.toml" ]; then
     cp "$SCRIPT_DIR/zeroclaw/config.toml" "$CONFIG_DIR/config.toml"
-    ok "Config written to $CONFIG_DIR/config.toml"
+    sed -i '' "/^default_provider = /a\\
+api_key = \"${SAIA_API_KEY}\"" "$CONFIG_DIR/config.toml"
   fi
 
+  ok "Config: $CONFIG_DIR/config.toml"
   echo ""
   ok "Run 'zeroclaw agent' to start."
 }
