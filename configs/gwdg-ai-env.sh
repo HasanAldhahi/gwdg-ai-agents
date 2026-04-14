@@ -141,9 +141,9 @@ setup_opencode() {
 
   CONFIG_DIR="${HOME}/.config/opencode"
   mkdir -p "$CONFIG_DIR"
-  if [ -f "$SCRIPT_DIR/opencode/config.toml" ]; then
-    cp "$SCRIPT_DIR/opencode/config.toml" "$CONFIG_DIR/config.toml"
-    ok "Config written to $CONFIG_DIR/config.toml"
+  if [ -f "$SCRIPT_DIR/opencode/opencode.json" ]; then
+    cp "$SCRIPT_DIR/opencode/opencode.json" "$CONFIG_DIR/opencode.json"
+    ok "Config written to $CONFIG_DIR/opencode.json"
   fi
 
   echo ""

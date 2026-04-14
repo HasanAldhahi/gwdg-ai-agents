@@ -18,6 +18,9 @@
 8. [Claude Code with Local/Custom LLM](#8-claude-code-with-custom-llm)
 9. [Quick-Start Scripts](#9-quick-start-scripts)
 10. [References](#10-references)
+11. [Self-Editing & Evolving Tools (Research Angle)](#11-self-editing--evolving-tools-research-angle)
+12. [Path to Production (GWDG Architecture Proposal)](#12-path-to-production-gwdg-architecture-proposal)
+13. [Phase 2: Biomni Agent Integration](#13-phase-2-biomni-agent-integration)
 
 ---
 
@@ -595,3 +598,25 @@ SAIA_API_KEY=$SAIA_API_KEY terok run chat-ai-demo "Run a quick code quality pass
 | XDA: Claude Code + Local LLM | <https://www.xda-developers.com/wrote-script-run-claude-code-local-llm-skipping-cloud/> |
 | GWDG OpenCode Examples | <https://gitlab-ce.gwdg.de/gwdg/gwdg-service-usage-examples/-/tree/main/ai-services/coco-ai/opencode> |
 | LiteLLM (proxy) | <https://github.com/BerriAI/litellm> |
+
+---
+
+## 11. Self-Editing & Evolving Tools (Research Angle)
+
+As requested, I investigated tools capable of self-evolution. **Agent Zero** is currently the most capable in this area, as it can write its own Python scripts, execute them, and store the learned outcomes in its FAISS vector memory.
+But the agent itself requires its workflow to be adjusted with the Claude Code harness for more robust implementations. Similarly, **Spec-Kit** allows for iterative, self-refining spec generation. Moving forward, equipping these agents with Headless Browsers (Playwright/Puppeteer) will be crucial for them to autonomously debug frontend web errors.
+
+---
+
+## 12. Path to Production (GWDG Architecture Proposal)
+
+To achieve the goal of allowing GWDG users to safely run containerized agents, I propose the following architecture:
+
+- **Orchestration:** Use Terok's native Podman configurations to spawn isolated, user-specific agent containers. Podman is strictly preferred over Docker as its rootless, daemonless architecture prevents host-level breakouts.
+- **Network Security:** Implement egress firewalls (e.g., `terok-shield`) to prevent agents from accessing unauthorized internal GWDG network resources, limiting them strictly to public APIs or specific allowed subnets.
+
+---
+
+## 13. Phase 2: Biomni Agent Integration
+
+*Note: Integrating the Biomni Agent (the focus of my Master's thesis) will be targeted as Phase 2. Once the baseline containerized environments for Terok/AgentZero are established and verified in production, we can seamlessly deploy Biomni into this same secure, Podman-backed architecture.*
