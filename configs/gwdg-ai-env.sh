@@ -27,7 +27,7 @@ if [ -n "${SAIA_API_KEY:-}" ]; then
   info "Detected existing SAIA_API_KEY ($masked)"
   printf "  Use this key? [Y/n]: "
   read -r use_existing
-  if [[ "${use_existing,,}" == "n" ]]; then
+  if [ "$(printf '%s' "$use_existing" | tr '[:upper:]' '[:lower:]')" = "n" ]; then
     unset SAIA_API_KEY
   fi
 fi
@@ -70,7 +70,7 @@ echo ""
 info "Shall I add the API key to your shell profile so it persists across sessions?"
 printf "  Add to shell profile? [y/N]: "
 read -r persist
-if [[ "${persist,,}" == "y" ]]; then
+if [ "$(printf '%s' "$persist" | tr '[:upper:]' '[:lower:]')" = "y" ]; then
   SHELL_RC="$HOME/.bashrc"
   [ -n "${ZSH_VERSION:-}" ] && SHELL_RC="$HOME/.zshrc"
   [ "$SHELL" = "/bin/zsh" ] && SHELL_RC="$HOME/.zshrc"
@@ -189,7 +189,7 @@ setup_agent_zero() {
   printf "  Choose [a/b]: "
   read -r az_method
 
-  if [[ "${az_method,,}" == "a" ]]; then
+  if [ "$(printf '%s' "$az_method" | tr '[:upper:]' '[:lower:]')" = "a" ]; then
     info "Running Agent Zero installer…"
     curl -fsSL https://bash.agent-zero.ai | bash
   else
