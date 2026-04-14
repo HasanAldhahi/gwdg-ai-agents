@@ -244,9 +244,10 @@ setup_agent_zero() {
 setup_terok() {
   printf "\n${BOLD}── Terok ──${NC}\n"
 
-  if ! command -v podman &> /dev/null; then
-    warn "Podman not found. Install from https://podman.io/getting-started/installation"
-    warn "Docker can work as an experimental alternative."
+  if ! command -v podman &> /dev/null && ! command -v docker &> /dev/null; then
+    err "Neither Podman nor Docker found."
+    info "Install Podman: https://podman.io/getting-started/installation"
+    return 1
   fi
 
   if ! command -v terok &> /dev/null; then
@@ -255,32 +256,78 @@ setup_terok() {
       info "Downloading latest Terok wheel from GitHub Releases…"
       TEROK_WHL_URL=$(curl -sf "https://api.github.com/repos/terok-ai/terok/releases/latest" \
         | grep "browser_download_url.*\.whl" | head -1 | cut -d '"' -f 4)
-      if [ -n "$TEROK_WHL_URL" ]; then
+      if [ -n "${TEROK_WHL_URL:-}" ]; then
         TMPWHL="$(mktemp -d)/terok.whl"
         curl -fSL "$TEROK_WHL_URL" -o "$TMPWHL"
         pipx install "$TMPWHL"
         rm -f "$TMPWHL"
       else
-        warn "Could not find wheel on GitHub. Trying pip install from source…"
+        warn "Could not find wheel. Installing from source…"
         pipx install "git+https://github.com/terok-ai/terok.git"
       fi
     elif command -v uv &> /dev/null; then
       uv tool install "git+https://github.com/terok-ai/terok.git"
     else
       warn "Neither pipx nor uv found. Install pipx first: pip install pipx"
-      warn "Then re-run this setup."
       return 1
     fi
   else
     ok "Terok already installed."
   fi
 
+  # Create a GWDG demo project if none exists
+  PROJECT_ID="${TEROK_PROJECT:-gwdg-demo}"
+  PROJECT_DIR="${HOME}/.config/terok/projects/${PROJECT_ID}"
+
+  if [ ! -d "$PROJECT_DIR" ]; then
+    info "Creating project '${PROJECT_ID}'…"
+    mkdir -p "$PROJECT_DIR"
+    cat > "$PROJECT_DIR/project.yml" << PROJYML
+project:
+  id: "${PROJECT_ID}"
+  name: "GWDG AI Demo"
+  security_class: "online"
+
+git:
+  upstream_url: "https://github.com/gwdg/chat-ai.git"
+  default_branch: "main"
+
+image:
+  base_image: "ubuntu:24.04"
+  user_snippet_inline: |
+    RUN apt-get update && apt-get install -y --no-install-recommends \\
+          git curl ca-certificates ripgrep jq \\
+        && rm -rf /var/lib/apt/lists/*
+
+default_agent: opencode
+PROJYML
+    ok "Project config: $PROJECT_DIR/project.yml"
+
+    info "Building project (project-init)…"
+    terok project-init "$PROJECT_ID" 2>&1 || warn "project-init had issues — re-run: terok project-init ${PROJECT_ID}"
+  else
+    ok "Project '${PROJECT_ID}' already exists."
+  fi
+
+  # Start credential proxy
+  PROXY_STATUS=$(terok credential-proxy status 2>&1 | grep "^Status:" | awk '{print $2}')
+  if [ "$PROXY_STATUS" != "running" ]; then
+    info "Starting credential proxy…"
+    terok credential-proxy start 2>&1 || warn "Could not start proxy. Try: terok credential-proxy start"
+  else
+    ok "Credential proxy running."
+  fi
+
+  # Store KISSKI (SAIA) credentials
+  info "Storing SAIA API key for project '${PROJECT_ID}'…"
+  printf '%s\n' "$SAIA_API_KEY" | terok auth kisski "$PROJECT_ID" 2>/dev/null \
+    || warn "Auto-store failed. Run manually: terok auth kisski ${PROJECT_ID}"
+
   echo ""
-  ok "Quick start:"
-  echo "  terok                           # Start TUI"
-  echo "  terok run chat-ai-demo 'Quick repo review' --preset solo"
-  echo "  terok run chat-ai-demo 'Review auth module' --preset review"
-  echo "  terok run chat-ai-demo 'Add pagination' --preset team"
+  ok "Terok ready! Commands:"
+  echo "  terok tui                                                # Interactive TUI"
+  echo "  terok run ${PROJECT_ID} 'Quick repo review' --preset solo"
+  echo "  terok project-wizard                                     # Create new project"
 }
 
 setup_claude_code() {
